@@ -1,9 +1,12 @@
 package com.example.sonsacr;
 
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
@@ -73,6 +76,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+        BecomingNoisyReceiver becomingNoisyReceiver = new BecomingNoisyReceiver();
+
+        registerReceiver(becomingNoisyReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
+
         btn1 = (ImageButton) findViewById(R.id.btn1);
         btn2 = (ImageButton) findViewById(R.id.btn2);
         btn3 = (ImageButton) findViewById(R.id.btn3);
@@ -117,6 +124,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        mediaPlayer.start();
 
     }
+    private class BecomingNoisyReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (mediaPlayer != null) {
+                mediaPlayer.pause();
+            }
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -131,9 +146,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (id == R.id.musica) {
             Toast.makeText(this, "Ok", Toast.LENGTH_SHORT).show();
             mediaPlayer.start();
-            on = false;
+//            on = false;
 
             return true;
+        }
+
+        if (id==R.id.actividad2){
+
+            Intent i = new Intent(MainActivity.this, Activity2.class);
+            startActivity(i);
         }
 
         return super.onOptionsItemSelected(item);
@@ -145,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int id = v.getId();
 
         if (id == R.id.btn1) {
-            if (!on) {
+            if (mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
             }
             soundpool.play(soundID1, 100, 100, 0, 0, 1);
@@ -153,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         }
         if (id == R.id.btn2) {
-            if (!on) {
+            if (mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
             }
             soundpool.play(soundID2, 100, 100, 0, 0, 1);
@@ -161,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         }
         if (id == R.id.btn3) {
-            if (!on) {
+            if (mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
             }
             soundpool.play(soundID3, 100, 100, 0, 0, 1);
@@ -169,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         }
         if (id == R.id.btn4) {
-            if (!on) {
+            if (mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
             }
             soundpool.play(soundID4, 100, 100, 0, 0, 1);
@@ -197,6 +218,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
         recorder = new MediaRecorder();
+/*        recorder.prepare();
+        recorder.start();*/
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
@@ -226,4 +249,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, newUri));
         Toast.makeText(this, "Added File " + newUri, Toast.LENGTH_LONG).show();
     }
+
 }
